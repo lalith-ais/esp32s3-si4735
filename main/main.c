@@ -314,8 +314,12 @@ void app_main(void)
         return;
     }
 
-    /* 3. Bring up in FM mode, analog audio, crystal clock, no interrupts. */
-    ESP_ERROR_CHECK(si4735_setup_simple(&radio, SI4735_POWER_UP_FM));
+    /* 3. Bring up in FM mode, analog audio, no interrupts. Reference clock is an
+     *    external 32.768 kHz oscillator on the RCLK pin (XOSCEN=0), not a crystal.
+     *    Same as si4735_setup_simple() apart from the clock type. */
+    ESP_ERROR_CHECK(si4735_setup(&radio, 0, SI4735_POWER_UP_FM, SI4735_ANALOG_AUDIO,
+                                 SI4735_XOSCEN_RCLK, 0));
+    vTaskDelay(pdMS_TO_TICKS(250));
     switch_to_fm();
     ESP_ERROR_CHECK(si4735_set_volume(&radio, 45));
 
